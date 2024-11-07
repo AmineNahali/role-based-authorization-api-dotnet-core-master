@@ -20,29 +20,41 @@ public class UsersController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("[action]")]
-    public IActionResult Authenticate(AuthenticateRequest model)
+    public async Task<IActionResult> Authenticate(AuthenticateRequest model)
     {
-        var response = _userService.Authenticate(model);
+        var response = await _userService.Authenticate(model);
         return Ok(response);
     }
-
+    
+    [AllowAnonymous]
+    [HttpPost("[action]")]
+    public async Task<IActionResult> Register([FromBody] RegisterRequest model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        var response = await _userService.Register(model);
+        return Ok(response);
+    }
+    
     [Authorize(Role.Admin)]
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
-        var users = _userService.GetAll();
+        var users = await _userService.GetAll();
         return Ok(users);
     }
 
-    [HttpGet("{id:int}")]
-    public IActionResult GetById(int id)
+    [HttpGet("{id:long}")]
+    public async Task<IActionResult> GetById(long id)
     {
         // only admins can access other user records
         var currentUser = (User)HttpContext.Items["User"];
         if (id != currentUser.Id && currentUser.Role != Role.Admin)
             return Unauthorized(new { message = "Unauthorized" });
 
-        var user =  _userService.GetById(id);
+        var user = await _userService.GetById(id);
         return Ok(user);
     }
 }

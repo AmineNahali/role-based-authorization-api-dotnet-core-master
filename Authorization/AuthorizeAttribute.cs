@@ -21,12 +21,20 @@ public class AuthorizeAttribute : Attribute, IAuthorizationFilter
         if (allowAnonymous)
             return;
 
+        var unauthorized_result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
+
         // authorization
         var user = (User)context.HttpContext.Items["User"];
         if (user == null || (_roles.Any() && !_roles.Contains(user.Role)))
         {
             // not logged in or role not authorized
-            context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
+            context.Result = unauthorized_result;
+        }
+
+        // User IS authorized BUT had been deactivated by admin
+        if (!user.IsActivated)
+        {
+            context.Result = unauthorized_result;
         }
     }
 }

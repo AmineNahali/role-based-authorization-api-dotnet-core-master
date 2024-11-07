@@ -1,17 +1,19 @@
 namespace WebApi.Services;
 
-using BCrypt.Net;
+using BCryptNet = BCrypt.Net.BCrypt;
 using Microsoft.Extensions.Options;
 using WebApi.Authorization;
 using WebApi.Entities;
 using WebApi.Helpers;
 using WebApi.Models.Users;
+using Microsoft.EntityFrameworkCore;
 
 public interface IUserService
 {
-    AuthenticateResponse Authenticate(AuthenticateRequest model);
-    IEnumerable<User> GetAll();
-    User GetById(int id);
+    Task<RegisterResponse> Register(RegisterRequest model);
+    Task<AuthenticateResponse> Authenticate(AuthenticateRequest model);
+    Task<IEnumerable<User>> GetAll();
+    Task<User> GetById(long id);
 }
 
 public class UserService : IUserService
@@ -30,13 +32,35 @@ public class UserService : IUserService
         _appSettings = appSettings.Value;
     }
 
-
-    public AuthenticateResponse Authenticate(AuthenticateRequest model)
+    public async Task<RegisterResponse> Register(RegisterRequest model)
     {
-        var user = _context.Users.SingleOrDefault(x => x.Username == model.Username);
+        //TODO: Check if user's email already exists
+        
+        //TODO: Check if user's email is blacklisted
+        var new_user = new User
+        {
+            Email = model.Email,
+            FirstName = model.FirstName,
+            LastName = model.LastName,
+            PasswordHash = BCryptNet.HashPassword(model.Password1),
+            Role = Role.User,
+            DateCreated = DateTime.UtcNow,
+            DateLastModified = DateTime.UtcNow,
+            DateLastPasswordModified = DateTime.UtcNow,
+            IsActivated = true,
+        };
+        await _context.Users.AddAsync(new_user);
+        await _context.SaveChangesAsync();
+
+        return new RegisterResponse { Email = new_user.Email };
+    }
+
+    public async Task<AuthenticateResponse> Authenticate(AuthenticateRequest model)
+    {
+        var user = await _context.Users.SingleOrDefaultAsync(x => x.Email == model.Email);
 
         // validate
-        if (user == null || !BCrypt.Verify(model.Password, user.PasswordHash))
+        if (user == null || !BCryptNet.Verify(model.Password, user.PasswordHash))
             throw new AppException("Username or password is incorrect");
 
         // authentication successful so generate jwt token
@@ -45,14 +69,16 @@ public class UserService : IUserService
         return new AuthenticateResponse(user, jwtToken);
     }
 
-    public IEnumerable<User> GetAll()
+
+
+    public async Task<IEnumerable<User>> GetAll()
     {
         return _context.Users;
     }
 
-    public User GetById(int id) 
+    public async Task<User> GetById(long id) 
     {
-        var user = _context.Users.Find(id);
+        var user = await _context.Users.FindAsync(id);
         if (user == null) throw new KeyNotFoundException("User not found");
         return user;
     }

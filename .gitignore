@@ -1,3 +1,5 @@
 # .NET compiled files
 bin
 obj
+Migrations
+.vs
