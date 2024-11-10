@@ -49,7 +49,7 @@ public class UsersController : ControllerBase
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(long id)
     {
-        // only admins can access other user records
+        // only admins can access other admins records
         var currentUser = (User)HttpContext.Items["User"];
         if (id != currentUser.Id && currentUser.Role != Role.Admin)
             return Unauthorized(new { message = "Unauthorized" });

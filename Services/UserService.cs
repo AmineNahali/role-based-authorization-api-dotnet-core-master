@@ -35,8 +35,9 @@ public class UserService : IUserService
     public async Task<RegisterResponse> Register(RegisterRequest model)
     {
         //TODO: Check if user's email already exists
-        
+
         //TODO: Check if user's email is blacklisted
+        var this_instant = DateTime.UtcNow;
         var new_user = new User
         {
             Email = model.Email,
@@ -44,9 +45,9 @@ public class UserService : IUserService
             LastName = model.LastName,
             PasswordHash = BCryptNet.HashPassword(model.Password1),
             Role = Role.User,
-            DateCreated = DateTime.UtcNow,
-            DateLastModified = DateTime.UtcNow,
-            DateLastPasswordModified = DateTime.UtcNow,
+            DateCreated = this_instant,
+            DateLastModified = this_instant,
+            DateLastPasswordModified = this_instant,
             IsActivated = true,
         };
         await _context.Users.AddAsync(new_user);
