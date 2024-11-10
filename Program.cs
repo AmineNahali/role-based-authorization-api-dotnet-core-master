@@ -4,6 +4,7 @@ using WebApi.Authorization;
 using WebApi.Entities;
 using WebApi.Helpers;
 using WebApi.Services;
+using BCryptNet = BCrypt.Net.BCrypt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,13 +48,23 @@ var app = builder.Build();
     app.MapControllers();
 }
 
-// create hardcoded test users in db on startup
+// create Admin user once then COMMENT THE CODE AFTER Admin IS ADDED THE FIRST TIME !!!
 /*
 {
+    var this_instant = DateTime.UtcNow;
     var testUsers = new List<User>
     {
-        new User { FirstName = "Admin", LastName = "User", Username = "admin", PasswordHash = BCryptNet.HashPassword("admin"), Role = Role.Admin },
-        new User { FirstName = "Normal", LastName = "User", Username = "user", PasswordHash = BCryptNet.HashPassword("user"), Role = Role.User }
+        new User { 
+            FirstName = "Jim",
+            LastName = "Bob",
+            Email = "admin666@gmail.com",
+            Role = Role.Admin,
+            PasswordHash = BCryptNet.HashPassword("admin"),
+            DateCreated = this_instant,
+            DateLastModified = this_instant,
+            DateLastPasswordModified = this_instant,
+            IsActivated = true,
+        }
     };
 
     using var scope = app.Services.CreateScope();

@@ -73,7 +73,7 @@ public class UserService : IUserService
 
     public async Task<IEnumerable<User>> GetAll()
     {
-        return _context.Users;
+        return await _context.Users.ToListAsync();
     }
 
     public async Task<User> GetById(long id) 
