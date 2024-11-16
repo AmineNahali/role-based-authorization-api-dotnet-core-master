@@ -6,6 +6,7 @@ using WebApi.Entities;
 public class DataContext : DbContext
 {
     public DbSet<User> Users { get; set; }
+    public DbSet<Blacklist> Blacklisted { get; set; }
 
     private readonly IConfiguration Configuration;
 

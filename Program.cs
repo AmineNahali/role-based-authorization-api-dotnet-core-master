@@ -27,6 +27,7 @@ var builder = WebApplication.CreateBuilder(args);
     // configure DI for application services
     services.AddScoped<IJwtUtils, JwtUtils>();
     services.AddScoped<IUserService, UserService>();
+    services.AddScoped<IBlacklistService, BlacklistService>();
 }
 
 var app = builder.Build();
@@ -49,7 +50,7 @@ var app = builder.Build();
 }
 
 // create Admin user once then COMMENT THE CODE AFTER Admin IS ADDED THE FIRST TIME !!!
-
+/*
 {
     var this_instant = DateTime.UtcNow;
     var testUsers = new List<User>
@@ -72,5 +73,6 @@ var app = builder.Build();
     dataContext.Users.AddRange(testUsers);
     dataContext.SaveChanges();
 }
-
+*/
 app.Run("http://localhost:4000");
+

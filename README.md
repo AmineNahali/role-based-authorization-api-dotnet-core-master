@@ -1,7 +1,29 @@
-# dotnet-6-role-based-authorization-api
+# dotnet-8-role-based-authorization-api
 
-.NET 6.0 - Role Based Authorization API
+.NET 8.0 - Role Based Authorization API and Jason Web Tokens Authentication
 
-Documentation at https://jasonwatmore.com/post/2022/02/18/net-6-role-based-authorization-tutorial-with-example-api
+## How to setup the project :
 
-Documentación en español en https://jasonwatmore.es/post/2022/02/18/net-6-tutorial-de-autorizacion-basada-en-roles-con-api-de-ejemplo
+1 - Have both .NET 8.0 SDK and Docker installed
+
+2 - install MSSQL SERVER 2022 with these commands
+
+(get the official MSSQL SERVER image)
+	
+`docker pull mcr.microsoft.com/mssql/server:2022-latest`
+	
+(run the container)
+
+`docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=<YourStrong@Passw0rd>" -p 1433:1433 --name mssql1 --hostname mssql1 -d mcr.microsoft.com/mssql/server:2022-latest`
+
+3 - add initial migrations
+	
+`dotnet ef migrations add <NameOfYourMigration>`
+
+(example):
+	
+`dotnet ef migrations add InitialMigration`
+
+4 - apply the added migrations
+
+`dotnet ef database update`

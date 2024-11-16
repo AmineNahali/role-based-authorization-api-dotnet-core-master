@@ -1,7 +1,7 @@
 namespace WebApi.Entities;
 
 using System.Text.Json.Serialization;
-
+/// this is a user
 public class User
 {
     public long Id { get; set; }

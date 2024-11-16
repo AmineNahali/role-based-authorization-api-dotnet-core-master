@@ -18,25 +18,39 @@ public interface IUserService
 
 public class UserService : IUserService
 {
-    private DataContext _context;
+    private readonly DataContext _context;
     private IJwtUtils _jwtUtils;
     private readonly AppSettings _appSettings;
+    private readonly IBlacklistService _blacklistService;
 
     public UserService(
         DataContext context,
         IJwtUtils jwtUtils,
-        IOptions<AppSettings> appSettings)
+        IOptions<AppSettings> appSettings,
+        IBlacklistService blacklistService)
     {
         _context = context;
         _jwtUtils = jwtUtils;
         _appSettings = appSettings.Value;
+        _blacklistService = blacklistService;
     }
 
     public async Task<RegisterResponse> Register(RegisterRequest model)
     {
-        //TODO: Check if user's email already exists
-
-        //TODO: Check if user's email is blacklisted
+        // does the user already exist ? if yes cancel the action.
+        var existingUser = await _context.Users
+        .AnyAsync(u => u.Email == model.Email);
+        if (existingUser)
+        {
+            throw new AppException("This email is already registered.");
+        }
+        // email is blacklisted ? if yes cancel the action.
+        var isBlacklisted = await _blacklistService.IsBlacklisted(model.Email);
+        if (isBlacklisted)
+        {
+            throw new AppException("This email has been rejected.");
+        }
+        // save the new user if everything seems fine.
         var this_instant = DateTime.UtcNow;
         var new_user = new User
         {
@@ -70,14 +84,12 @@ public class UserService : IUserService
         return new AuthenticateResponse(user, jwtToken);
     }
 
-
-
     public async Task<IEnumerable<User>> GetAll()
     {
         return await _context.Users.ToListAsync();
     }
 
-    public async Task<User> GetById(long id) 
+    public async Task<User> GetById(long id)
     {
         var user = await _context.Users.FindAsync(id);
         if (user == null) throw new KeyNotFoundException("User not found");
