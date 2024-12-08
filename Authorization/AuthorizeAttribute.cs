@@ -32,7 +32,7 @@ public class AuthorizeAttribute : Attribute, IAuthorizationFilter
         }
 
         // User IS authorized BUT had been deactivated by admin
-        if (!user.IsActivated)
+        if (user != null && !user.IsActivated)
         {
             context.Result = unauthorized_result;
         }

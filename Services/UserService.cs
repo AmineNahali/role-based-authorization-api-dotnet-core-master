@@ -19,7 +19,7 @@ public interface IUserService
 public class UserService : IUserService
 {
     private readonly DataContext _context;
-    private IJwtUtils _jwtUtils;
+    private readonly IJwtUtils _jwtUtils;
     private readonly AppSettings _appSettings;
     private readonly IBlacklistService _blacklistService;
 
@@ -92,7 +92,7 @@ public class UserService : IUserService
     public async Task<User> GetById(long id)
     {
         var user = await _context.Users.FindAsync(id);
-        if (user == null) throw new KeyNotFoundException("User not found");
+        if (user == null) throw new AppException("User not found");
         return user;
     }
 }
